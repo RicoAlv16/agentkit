@@ -149,6 +149,18 @@ async def root() -> Dict[str, str]:
     """An example "Hello world" FastAPI route."""
     return {"message": "FastAPI backend"}
 
+# ... existing code ...
+
+async def get_cached_response(key: str):
+    """Fetches cached response with optimized pipeline."""
+    async with redis_pool.pipeline(transaction=True) as pipe:
+        pipe.get(key)
+        pipe.ttl(key)
+        result = await pipe.execute()
+
+    return result[0], result[1]  # Value and TTL
+
+# ... existing code ...
 
 # Add Routers
 app.include_router(
