@@ -115,3 +115,36 @@ def create_meta_agent(
         early_stopping_method="generate",
         handle_parsing_errors=True,
     )
+
+
+# Ajoutez ces imports si nécessaires
+from typing import List, Tuple
+from app.api.deps import get_redis_client
+
+async def batch_save_context(memory: ConversationTokenBufferMemory, chat_pairs: List[Tuple[str, str]]):
+    """Batch saves chat history instead of inserting one by one."""
+    async with redis_pool.pipeline(transaction=True) as pipe:
+        for user_msg, ai_msg in chat_pairs:
+            pipe.set(f"chat_history:{user_msg}", ai_msg, ex=3600)  # 1-hour TTL
+        await pipe.execute()
+
+
+# Dans la classe qui gère la mémoire de conversation
+
+def adjust_memory_size(self, input_tokens_count: int, max_tokens: int = 4000):
+    """Ajuste dynamiquement la taille de la mémoire en fonction de l'entrée utilisateur.
+    
+    Args:
+        input_tokens_count: Nombre de tokens dans l'entrée utilisateur
+        max_tokens: Limite maximale de tokens pour la mémoire
+    """
+    # Calculer combien de messages d'historique nous pouvons garder
+    available_tokens = max_tokens - input_tokens_count
+    
+    # Réduire l'historique si nécessaire
+    while self.memory_token_count > available_tokens and len(self.chat_memory.messages) > 2:
+        # Supprimer les messages les plus anciens (garder au moins la dernière paire)
+        self.chat_memory.messages.pop(0)
+        self.chat_memory.messages.pop(0)
+        # Recalculer le nombre de tokens
+        self.memory_token_count = self._count_tokens_in_memory()

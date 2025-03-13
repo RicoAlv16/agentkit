@@ -69,6 +69,7 @@ async def user_id_identifier(request: Request) -> str:
     return ip + ":" + request.scope["path"]
 
 
+# Définir redis_pool au démarrage de l'application
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     """Start up and shutdown tasks."""
@@ -77,6 +78,8 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
     yaml_configs["ingestion_config"] = load_ingestion_configs()
 
     redis_client = await get_redis_client()
+    # Stocker le client Redis dans une variable globale pour réutilisation
+    _app.state.redis_pool = redis_client
 
     if settings.ENABLE_LLM_CACHE:
         set_llm_cache(RedisCache(redis_=get_redis_client_sync()))
@@ -149,18 +152,16 @@ async def root() -> Dict[str, str]:
     """An example "Hello world" FastAPI route."""
     return {"message": "FastAPI backend"}
 
-# ... existing code ...
 
 async def get_cached_response(key: str):
     """Fetches cached response with optimized pipeline."""
-    async with redis_pool.pipeline(transaction=True) as pipe:
+    # Utiliser app.state.redis_pool au lieu de redis_pool non défini
+    async with app.state.redis_pool.pipeline(transaction=True) as pipe:
         pipe.get(key)
         pipe.ttl(key)
         result = await pipe.execute()
 
     return result[0], result[1]  # Value and TTL
-
-# ... existing code ...
 
 # Add Routers
 app.include_router(
