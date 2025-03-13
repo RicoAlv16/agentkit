@@ -1,15 +1,16 @@
-version: '3.8'
+version: "3.8"
 
 services:
   fastapi_server:
     container_name: fastapi_server
     build: ./backend
-    restart: always
     command: "sh -c 'alembic upgrade head && python app/document_ingestion.py  && uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 9090'"
     volumes:
       - ./backend/app:/code
+    ports:
+      - 8080:8080
     expose:
-      - 9090
+      - 8080
     env_file: ".env"
     depends_on:
       - database
@@ -74,7 +75,6 @@ services:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
-
 
 volumes:
   caddy_data:
