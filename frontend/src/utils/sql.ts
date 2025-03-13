@@ -10,9 +10,9 @@ export const getMessageFromExecutionResult = (result: ExecutionResult): string =
   return ""
 }
 
-export const checkStatementIsSelect = (statement: string) => {
-  return statement.toUpperCase().trim().startsWith("SELECT") || statement.toUpperCase().trim().startsWith("WITH")
-}
+const selectRegex = /^(SELECT|WITH)[\s\w\d\(\),.*<>=!%_\-+'":[\]|&]+$/i
+
+export const checkStatementIsSelect = (statement: string): boolean => selectRegex.test(statement.trim())
 
 export const filterNonFlattenedObjectFields = (rest: Record<string, any>) => {
   // Filters out any non-flattened fields. If needed, adjust.
