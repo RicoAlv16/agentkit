@@ -5,7 +5,10 @@ export const groupBy = (array: any[], key: string, defaultGroup = "default") => 
     const groupKey = item[key] ?? defaultGroup
     
     if (!grouped.has(groupKey)) grouped.set(groupKey, [])
-    grouped.get(groupKey).push(item)
+const group = grouped.get(groupKey);
+if (group) {
+  group.push(item);
+}
   })
   
   return Object.fromEntries(grouped)

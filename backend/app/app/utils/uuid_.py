@@ -8,11 +8,17 @@ Repo: https://github.com/oittaa/uuid6-python
 """
 
 import uuid
+import time
 from typing import Optional
 
 
 class UUID_(uuid.UUID):
     """UUID draft version objects."""
+
+    # Cache pour les opérations fréquentes
+    _version_mask = 0xF000 << 64
+    _variant_mask = 0xC000 << 48
+    _variant_rfc4122 = 0x8000 << 48
 
     def __init__(
         self,
@@ -58,10 +64,10 @@ class UUID_(uuid.UUID):
             if not 6 <= version <= 7:
                 raise ValueError("illegal version number")
             # Set the variant to RFC 4122.
-            int_ &= ~(0xC000 << 48)
-            int_ |= 0x8000 << 48
+            int_ &= ~self._variant_mask
+            int_ |= self._variant_rfc4122
             # Set the version number.
-            int_ &= ~(0xF000 << 64)
+            int_ &= ~self._version_mask
             int_ |= version << 76
         super().__init__(
             int=int_,
@@ -89,3 +95,13 @@ class UUID_(uuid.UUID):
         value: int,
     ) -> int:
         return -(-value * 10**6 // 2**20)
+
+# Fonction optimisée pour générer rapidement un UUID
+def generate_fast_uuid() -> str:
+    """Génère un UUID rapide quand la sécurité cryptographique n'est pas critique."""
+    # Utilise le timestamp pour la partie haute de l'UUID
+    t = int(time.time() * 1000)
+    # Combine avec un nombre aléatoire pour la partie basse
+    r = uuid.getrandbits(96)
+    # Formate comme un UUID standard
+    return f"{t:08x}-{r>>64:04x}-{((r>>48)&0xFFFF)|0x4000:04x}-{((r>>32)&0xFFFF)|0x8000:04x}-{r&0xFFFFFFFF:08x}"
