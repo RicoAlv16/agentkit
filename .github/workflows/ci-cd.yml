@@ -76,6 +76,46 @@ jobs:
           PDF_TOOL_DATABASE=./data/pdf_db
           EOF
           
+          # Créer le répertoire config s'il n'existe pas
+          mkdir -p config
+          
+          # Créer un fichier agent_config.json factice pour les tests
+          cat > config/agent_config.json << EOF
+          {
+            "llm": {
+              "model": "gpt-3.5-turbo",
+              "temperature": 0.0,
+              "streaming": true
+            },
+            "tools": {
+              "sql_tool": {
+                "enabled": false,
+                "db_info_path": "./config/sql_db_info.json",
+                "db_uri": "postgresql://postgres:postgres@localhost:5432/test_db"
+              },
+              "pdf_tool": {
+                "enabled": false,
+                "data_path": "./data/pdf",
+                "database": "./data/pdf_db"
+              }
+            }
+          }
+          EOF
+          
+          # Créer un fichier pdf_extraction_config.json factice
+          cat > config/pdf_extraction_config.json << EOF
+          {
+            "extraction_method": "simple"
+          }
+          EOF
+          
+          # Créer un fichier sql_db_info.json factice
+          cat > config/sql_db_info.json << EOF
+          {
+            "tables": []
+          }
+          EOF
+          
           # Exporter les variables d'environnement pour les tests
           export $(grep -v '^#' .env.test | xargs)
           
