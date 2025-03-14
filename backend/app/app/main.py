@@ -21,7 +21,8 @@ from starlette.middleware.cors import CORSMiddleware
 from app.api.deps import get_redis_client, get_redis_client_sync
 from app.api.v1.api import api_router as api_router_v1
 from app.core.config import settings, yaml_configs
-from app.core.fastapi import FastAPIWithInternalModels
+from app.core.fastapi import FastAPIWithInternalModels  # Assurez-vous d'importer ceci
+from app.core.prometheus import setup_prometheus_instrumentator
 from app.utils.config_loader import load_agent_config, load_ingestion_configs
 from app.utils.fastapi_globals import GlobalsMiddleware, g
 
@@ -155,3 +156,21 @@ app.include_router(
     prefix=settings.API_V1_STR,
 )
 add_pagination(app)
+
+# Configurer Prometheus - ajoutez cette partie ici, après la configuration de l'application
+instrumentator = setup_prometheus_instrumentator()
+instrumentator.instrument(app).expose(app, endpoint="/metrics", include_in_schema=True)
+
+# Supprimez cette redéfinition de l'application qui écrase votre configuration précédente
+# app = FastAPIWithInternalModels(
+#     title="AgentKit API",
+#     description="API for AgentKit application",
+#     version="0.1.0",
+#     openapi_url="/api/v1/openapi.json",
+#     docs_url="/api/v1/docs",
+#     redoc_url="/api/v1/redoc",
+# )
+
+# # Configurer Prometheus
+# instrumentator = setup_prometheus_instrumentator()
+# instrumentator.instrument(app).expose(app, endpoint="/metrics", include_in_schema=True)
