@@ -79,8 +79,11 @@ jobs:
           # Exporter les variables d'environnement pour les tests
           export $(grep -v '^#' .env.test | xargs)
           
-          # Exécuter les tests
-          python -m pytest tests/unit --cov=app --cov-report=xml
+          # Vérifier la structure des répertoires
+          find . -type d | sort
+          
+          # Exécuter les tests avec le chemin correct
+          python -m pytest app/tests/unit --cov=app --cov-report=xml
 
       - name: Run integration tests
         run: |
@@ -88,7 +91,8 @@ jobs:
           # Utiliser le même fichier .env.test créé précédemment
           export $(grep -v '^#' .env.test | xargs)
           
-          python -m pytest tests/integration --cov=app --cov-report=xml --cov-append
+          # Exécuter les tests avec le chemin correct
+          python -m pytest app/tests/integration --cov=app --cov-report=xml --cov-append
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v3
