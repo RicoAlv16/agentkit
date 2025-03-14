@@ -65,7 +65,7 @@ jobs:
           MINIO_ROOT_PASSWORD=minioadmin
           MINIO_URL=localhost:9000
           MINIO_BUCKET=test-bucket
-          BACKEND_CORS_ORIGINS=["http://localhost:3000"]
+          BACKEND_CORS_ORIGINS=http://localhost:3000
           PDF_TOOL_EXTRACTION_CONFIG_PATH=./config/pdf_extraction_config.json
           AGENT_CONFIG_PATH=./config/agent_config.json
           SQL_TOOL_DB_ENABLED=false
