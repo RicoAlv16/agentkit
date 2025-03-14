@@ -4,7 +4,7 @@ services:
   fastapi_server:
     container_name: fastapi_server
     build: ./backend
-    command: "sh -c 'alembic upgrade head && python app/document_ingestion.py  && uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 9090'"
+    command: "sh -c 'alembic upgrade head && python app/document_ingestion.py  && uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8080'"
     volumes:
       - ./backend/app:/code
     ports:
