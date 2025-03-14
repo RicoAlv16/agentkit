@@ -88,8 +88,25 @@ class FeedbackLangchain(BaseModel):
     modified_at: datetime
     run_id: UUID
     key: str
-    score: SCORE_TYPE = None
-    value: VALUE_TYPE = None
+    score: SCORE_TYPE = None  # En Pydantic v2, utilisez Field(default=None) pour plus de clarté
+    value: VALUE_TYPE = None  # En Pydantic v2, utilisez Field(default=None) pour plus de clarté
     comment: Optional[str] = None
     correction: Union[str, dict, None] = None
     feedback_source: Optional[FeedbackSourceBaseLangchain] = None
+    
+    # Ajoutez model_config pour remplacer Config en v2
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "created_at": "2023-01-01T00:00:00Z",
+                    "modified_at": "2023-01-01T00:00:00Z",
+                    "run_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "key": "correctness",
+                    "score": 1.0,
+                    "comment": "This response is correct"
+                }
+            ]
+        }
+    }
