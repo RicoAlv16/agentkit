@@ -50,11 +50,44 @@ jobs:
       - name: Run unit tests
         run: |
           cd backend/app
+          # Créer un fichier .env.test avec des valeurs factices pour les tests
+          cat > .env.test << EOF
+          PROJECT_NAME=agentkit-test
+          OPENAI_API_KEY=sk-test
+          DATABASE_USER=postgres
+          DATABASE_PASSWORD=postgres
+          DATABASE_HOST=localhost
+          DATABASE_PORT=5432
+          DATABASE_NAME=test_db
+          REDIS_HOST=localhost
+          REDIS_PORT=6379
+          MINIO_ROOT_USER=minioadmin
+          MINIO_ROOT_PASSWORD=minioadmin
+          MINIO_URL=localhost:9000
+          MINIO_BUCKET=test-bucket
+          BACKEND_CORS_ORIGINS=["http://localhost:3000"]
+          PDF_TOOL_EXTRACTION_CONFIG_PATH=./config/pdf_extraction_config.json
+          AGENT_CONFIG_PATH=./config/agent_config.json
+          SQL_TOOL_DB_ENABLED=false
+          SQL_TOOL_DB_INFO_PATH=./config/sql_db_info.json
+          SQL_TOOL_DB_URI=postgresql://postgres:postgres@localhost:5432/test_db
+          PDF_TOOL_ENABLED=false
+          PDF_TOOL_DATA_PATH=./data/pdf
+          PDF_TOOL_DATABASE=./data/pdf_db
+          EOF
+          
+          # Exporter les variables d'environnement pour les tests
+          export $(grep -v '^#' .env.test | xargs)
+          
+          # Exécuter les tests
           python -m pytest tests/unit --cov=app --cov-report=xml
 
       - name: Run integration tests
         run: |
           cd backend/app
+          # Utiliser le même fichier .env.test créé précédemment
+          export $(grep -v '^#' .env.test | xargs)
+          
           python -m pytest tests/integration --cov=app --cov-report=xml --cov-append
 
       - name: Upload coverage report
