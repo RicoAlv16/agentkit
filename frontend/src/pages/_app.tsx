@@ -25,8 +25,12 @@ const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppProps) =>
   <SessionProvider session={session}>
     <Head>
       <title>{APPLICATION_TITLE}</title>
-      <meta name="A GenAI POC application @ BCG.X" content="By BCG X" />
+      <meta name="description" content="A GenAI POC application @ BCG.X" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      <meta name="theme-color" content="#000000" />
       <link rel="icon" href="/favicon.ico" />
+      <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+      <link rel="manifest" href="/manifest.json" />
     </Head>
     <ThemeProvider>
       <Layout>
