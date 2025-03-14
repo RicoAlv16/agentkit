@@ -43,18 +43,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install poetry
           cd backend/app
+          poetry config virtualenvs.create false
           poetry install
           pip install pytest pytest-asyncio pytest-cov
 
       - name: Run unit tests
         run: |
           cd backend/app
-          pytest tests/unit --cov=app --cov-report=xml
+          python -m pytest tests/unit --cov=app --cov-report=xml
 
       - name: Run integration tests
         run: |
           cd backend/app
-          pytest tests/integration --cov=app --cov-report=xml --cov-append
+          python -m pytest tests/integration --cov=app --cov-report=xml --cov-append
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v3
